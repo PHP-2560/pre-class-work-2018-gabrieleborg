@@ -98,6 +98,18 @@ hist(exp.draws.1)
 
 ![](pre-class02_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
+``` r
+plot(exp.draws.1)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+plot(exp.draws.0.2, exp.draws.5)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+
 4.  We’d now like to compare the properties of each of our vectors.
     Begin by creating a vector of the means of each of our five
     distributions in the order we created them and saving this to a
@@ -110,6 +122,53 @@ hist(exp.draws.1)
     3.  The means versus the standard deviations.
 
 For each plot, explain in words what’s going on.
+
+``` r
+library(dplyr)
+t <- tbl_df(cbind(exp.draws.0.2, exp.draws.1, exp.draws.5, exp.draws.7.3, exp.draws.10)) 
+m <- 
+  t %>%
+    summarise_all(funs(mean)) %>%
+      unlist(., use.names = FALSE)
+      
+s <- 
+  t %>%
+  summarise_all(funs(sd)) %>%
+    unlist(., use.names = FALSE)
+
+rate.2<- c(rate[1], 1, rate[2:4])
+```
+
+``` r
+plot(rate.2,m)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+<font size = "2"> the scatter plot clearly reveals the negative
+relationship between the Exponential distribution’s parameter and the
+mean of the randon numbers sampled: the higher the parameter’s value,
+the lower the sample mean. </font>
+
+``` r
+plot(rate.2,s)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+<font size = "2"> the standard deviation scatter plot also presents a
+negative correlation with the mean of the randon numbers sampled. The
+scatter plot is indeed very similar to the previous one.</font>
+
+``` r
+plot(m,s)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+<font size = "2"> The last scatter plot confirms the previous
+intuitions: means and standard deviations are indeed positively
+correlated showing a slope close to 1 </font>
 
 ### Part II (PHP 2560 Only)
 
@@ -132,3 +191,54 @@ For each plot, explain in words what’s going on.
     6.  Now, find the means of all 1000 columns of `big.exp.draws.1.mat`
         simultaneously. Plot the histogram of column means. Explain why
         its shape does not match the histogram in problem 5b).
+
+<!-- end list -->
+
+``` r
+library(dplyr)
+#5.a
+big.exp.draws.1 <- rexp(n = 1100000)
+summstat <- c(mean(big.exp.draws.1), sd(big.exp.draws.1))
+
+#5.b
+x <- seq(from = 0, to = 15, by =1 )
+y<- (1-exp(-x))
+
+hist(big.exp.draws.1)
+lines(x,y, col = "red")
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+#5.c
+bigger.1.mean <- 
+  big.exp.draws.1 %>%
+    subset(big.exp.draws.1>1) %>%
+      mean
+
+#5.d
+big.exp.draws.1.mat <- matrix(big.exp.draws.1, nrow = 1100)
+hist2 <- hist(big.exp.draws.1.mat)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
+#The graph obtained from the matrix is identical to the former one obtained from the vector. 
+
+#5.e
+mean.col371 <- 
+  big.exp.draws.1.mat[,371] %>%
+    mean()
+
+#5.f
+mean.all <- colMeans(big.exp.draws.1.mat)
+hist(mean.all)
+```
+
+![](pre-class02_files/figure-gfm/unnamed-chunk-8-3.png)<!-- -->
+
+``` r
+#The mean histogram is different from point b because we now have, by definitions, means. We can indeed see how the distribution is centered around the "true" value of the distribution mean, i.e. 1. As sample size goes to infinity, we would have this distribution converge to the true value: this is the Law of Large Numbers.
+```
