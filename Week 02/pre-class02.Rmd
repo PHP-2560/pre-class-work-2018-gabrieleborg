@@ -124,11 +124,14 @@ big.exp.draws.1 <- rexp(n = 1100000)
 summstat <- c(mean(big.exp.draws.1), sd(big.exp.draws.1))
 
 #5.b
-x <- seq(from = 0, to = 15, by =1 )
+x <- seq(from = 0, to = 20, by =0.001 )
 y<- (1-exp(-x))
 
 hist(big.exp.draws.1)
-lines(x,y, col = "red")
+par(new = TRUE)
+plot(x,y, type = "lines", col = "red", axes = FALSE)
+legend("topright", legend = c("big.exp.draws.1", "1-e^(-x)"), text.col=c("black","red"), col = c("black", "red"),lty=1:2)
+#The two functions don't match. While the histogram is approximating the pdf of an exponential distribution, the function is actually the cdf of the exponential distribution.
 
 #5.c
 bigger.1.mean <- 
@@ -149,7 +152,8 @@ mean.col371 <-
 #5.f
 mean.all <- colMeans(big.exp.draws.1.mat)
 hist(mean.all)
-#The mean histogram is different from point b because we now have, by definitions, means. We can indeed see how the distribution is centered around the "true" value of the distribution mean, i.e. 1. As sample size goes to infinity, we would have this distribution converge to the true value: this is the Law of Large Numbers.
+#The mean histogram is different from point b because we now have, by definitions, means. We can indeed see how the distribution is centered around the "true" value of the standard exponential's mean, i.e. 1. 
+#As sample size goes to infinity, we would have this distribution converge to the true value: this is the Law of Large Numbers.
   
 
 
