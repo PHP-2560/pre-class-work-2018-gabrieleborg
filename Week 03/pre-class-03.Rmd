@@ -20,7 +20,7 @@ Make sure you commit this often with meaningfull messages.
 
 We will work with the dataset called [gapminder](https://github.com/jennybc/gapminder), this is a cleaned up version from [Gapminder Data](http://www.gapminder.org/data/). Gapminder contains a lot of great data on all of the nations of the world. We first need to install the gapminder package in R. 
 
-```{R}
+```
 install.packages("gapminder")
 ```
 
@@ -83,10 +83,46 @@ gapminder %>%
 
 6. What 10 countries have the strongest correlation (in either direction) between life expectancy and per capita GDP?
 ```{r}
-
+gapminder %>%
+  group_by(country) %>%
+  summarise(cor = cor(lifeExp,gdpPercap)) %>%
+  mutate(abs_cor = abs(cor)) %>%
+  arrange(desc(abs_cor)) %>%
+  top_n(n = 10)
+  
 ```
 
 7. Which combinations of continent (besides Asia) and year have the highest average population across all countries? _N.b. your output should include all results sorted by highest average population_. With what you already know, this one may stump you. See [this Q&A](http://stackoverflow.com/q/27207963/654296) for how to `ungroup` before `arrange`ing. This also [behaves differently in more recent versions of dplyr](https://github.com/hadley/dplyr/releases/tag/v0.5.0).
-8. Which three countries have had the most consistent population estimates (i.e. lowest standard deviation) across the years of available data? 
+```{r}
+gapminder %>%
+  filter(continent!="Asia") %>%
+  group_by(continent, year) %>%
+  summarise(avg_pop = mean(pop)) %>%
+  arrange(desc(avg_pop))
+```
+
+8. Which three countries have had the most consistent population estimates (i.e. lowest standard deviation) across the years of available data?
+```{r}
+gapminder %>%
+  group_by(country) %>%
+  summarise(sd = sd(pop)) %>%
+  arrange(sd) %>%
+  top_n(n = -3)
+```
+
 9. Subset **gm** to only include observations from 1992 and store the results as **gm1992**. What kind of object is this?
+```{r}
+gm1992 <- 
+  gapminder %>%
+  filter(year==1992)
+  
+class(gm1992)
+```
+
 10. Which observations indicate that the population of a country has *decreased* from the previous year **and** the life expectancy has *increased* from the previous year? See [the vignette on window functions](https://cran.r-project.org/web/packages/dplyr/vignettes/window-functions.html).
+```{r}
+gapminder %>%
+  filter(pop<lag(pop) & lifeExp > lag(lifeExp))
+
+```
+
