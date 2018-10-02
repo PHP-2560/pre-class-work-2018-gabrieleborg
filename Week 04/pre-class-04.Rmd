@@ -1,3 +1,14 @@
+---
+title: "pre-class04"
+author: "Gabriele Borg"
+date: "October 3, 2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 # pre-class
 
 
@@ -56,7 +67,7 @@ sum(seq(0,1000, by = 2))
 
 Here is a dataframe of survey data containing 5 questions :
 
-```{r, eval=FALSE}
+```{r}
 survey <- data.frame(
                      "participant" = c(1, 2, 3, 4, 5, 6),
                      "q1" = c(5, 3, 2, 7, 11, 0),
@@ -70,17 +81,32 @@ The response to each question should be an integer between 1 and 5. Obviously, w
 
 A. Using a loop, create a new dataframe called survey.clean where all the invalid values (those that are not integers between 1 and 5) are set to NA.
 ```{r}
-#initialise empty list
-survey.clean<-list()
+#create name vector
+participant<-survey$participant
 #loop over survey columns, replace wrong values and add it to list
-for (i in names(survey)) {
-  i <- survey[i]
-  i[(i<0 | i>5)] <- NA
-  survey.clean <- c(survey.clean,i)
+for (i in 2:length(survey)) {
+  temp <- survey[i]
+  temp[(temp<0 | temp>5)] <- NA
+  participant <- cbind(participant,temp)
 }
-#transform list in dataframe
-survey.clean<- as.data.frame(survey.clean)
+#rename dataframe
+survey.clean<- participant
+
+#print dataframe
+survey.clean
 ```
 
 
 B. Now, again using a loop, add a new column to the dataframe called “invalid.answers” that indicates, for each participant, how many bad answers they gave.
+```{r}
+
+#loop through rows to compute no. of NAs
+for (i in 1:length(survey.clean)){
+  survey.clean$invalid.answers[i] <- sum(is.na(survey.clean[i,]))
+}
+
+#print dataframe
+survey.clean
+
+```
+
