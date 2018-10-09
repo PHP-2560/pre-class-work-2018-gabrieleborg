@@ -1,3 +1,10 @@
+---
+title: "pre-class04"
+author: "Gabriele Borg"
+date: "October 3, 2018"
+output: github_document
+---
+
 # pre-class
 
 
@@ -8,9 +15,6 @@ Make sure you commit this often with meaningful messages.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-
-
 
 
 
@@ -96,9 +100,45 @@ bmi     Body Mass Index
 ### Question 1: Standardize Function
 
 A. Create a function called standardize.me() that takes a numeric vector as an argument, and returns the standardized version of the vector. 
+```{r}
+standardize.me<- function(x){
+  m<- mean(x, na.rm = TRUE)
+  sd<- sd(x, na.rm = TRUE)
+  x <- (x - m)/sd
+}
+```
+
 B. Assign all the numeric columns of the original WCGS dataset to a new dataset called WCGS.new.
+```{r}
+WCGS.new <- wcgs[, sapply(wcgs, is.numeric)]
+```
+
 C. Using a loop and your new function, standardize all the variables WCGS.new dataset.
+```{r}
+for ( i in seq_along(WCGS.new)) {
+  WCGS.new[[i]] <- standardize.me(WCGS.new[[i]])
+}
+```
+
 D. What should the mean and standard deviation of all your new standardized variables be? Test your prediction by running a loop
+```{r}
+#clearly mean and standard deviation should be zero and one respectively
+for (i in seq_along(WCGS.new)){ #loop over WCGS.new columns
+  m <- mean(WCGS.new[[i]], na.rm = TRUE) # exctract mean
+  s <- sd(WCGS.new[[i]], na.rm = TRUE) #extract sd
+  expected_m <- 0 #predicted mean
+  expetced_s <-1 #predicted sd
+  varname <- names(WCGS.new[i]) #exctract varname to return message
+  if ((m - expected_m)<1e-10 & (s - expetced_s)<1e-10) { #allow for some small margin of error due to rounded approximations
+  print(paste0(varname, " has expected mean and sd"))     
+  }  else {
+    print(paste0(varname, " has a problem"))
+  }
+}  
+  
+
+```
+
 
 
 
@@ -106,5 +146,21 @@ D. What should the mean and standard deviation of all your new standardized vari
 ### Question 2: Looping to Calculate
 
 A. Using a loop, calculate the mean weight of the subjects separated by the type of CHD they have.
+```{r}
+
+chd.type<-as.vector(unique(wcgs["typchd69"]))
+average_wgt<-data.frame(matrix(ncol = 1, nrow = length(chd.type$typchd69)))
+rownames(average_wgt)<-chd.type
+try<-data.frame()
+for (i in chd.type) {
+  sub_sample <- wcgs[wcgs$typchd69==i, "weight"]
+  chd.type[i,1] <- mean(sub_sample, na.rm = TRUE)
+  #print(paste0(chd.type[i]), " has mean ", sub_mean)
+}
+```
+
 B. Now do the same thing, but now don’t use a loop
+```{r}
+tapply(wcgs$weight, wcgs$typchd69, mean)
+```
 
