@@ -147,16 +147,14 @@ for (i in seq_along(WCGS.new)){ #loop over WCGS.new columns
 
 A. Using a loop, calculate the mean weight of the subjects separated by the type of CHD they have.
 ```{r}
-
-chd.type<-as.vector(unique(wcgs["typchd69"]))
-average_wgt<-data.frame(matrix(ncol = 1, nrow = length(chd.type$typchd69)))
-rownames(average_wgt)<-chd.type
-try<-data.frame()
-for (i in chd.type) {
-  sub_sample <- wcgs[wcgs$typchd69==i, "weight"]
-  chd.type[i,1] <- mean(sub_sample, na.rm = TRUE)
-  #print(paste0(chd.type[i]), " has mean ", sub_mean)
+chd.type<-as.vector(unique(wcgs["typchd69"])) #create vector of CHD types
+sub_mean<- data.frame(matrix(ncol = 1, nrow = dim(chd.type)[1])) #create empty data.frame to store averages
+for (i in 1:dim(chd.type)[1]) {
+  type<- chd.type[i,1] #exctract type of interest
+  sub_sample <- wcgs[wcgs$typchd69==type, "weight"] #subset the original data.frame according to the CHd type
+  sub_mean[i,1] <- mean(sub_sample, na.rm = TRUE) #compute average weight for a given CHD type
 }
+print(sub_mean)
 ```
 
 B. Now do the same thing, but now don’t use a loop

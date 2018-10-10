@@ -1,0 +1,150 @@
+pre-class04
+================
+Gabriele Borg
+October 3, 2018
+
+# pre-class
+
+Make sure you commit this often with meaningful messages.
+
+Standardizing a variable means subtracting the mean, and then dividing
+by the standard deviation. Letâs use a loop to standardize the numeric
+columns in the [Western Collaborative Group
+Study](https://clinicaltrials.gov/ct2/show/NCT00005174). This study
+began in 1960 with 3154 men ages 39-59, who were employed in one of 11
+California based companies. They were followed until 1969 during this
+time, 257 of these men developed coronary heart disease (CHD). You can
+read this data in with the code below. You can access this dataset with
+the following code:
+
+``` r
+suppressMessages(library(foreign))
+wcgs <- read.dta("https://drive.google.com/uc?export=download&id=0B8CsRLdwqzbzYWxfN3ExQllBQkU")
+```
+
+The data has the following variables:
+
+WCGS has the following variables:
+
+| Name    | Description                           |
+| :------ | :------------------------------------ |
+| id      | Subject identification number         |
+| age     | Age in years                          |
+| height  | Height in inches                      |
+| weight  | Weight in lbs.                        |
+| sbp     | Systolic blood pressure in mm         |
+| dbp     | Diastolic blood pressure in mm Hg     |
+| chol    | Fasting serum cholesterol in mm       |
+| behpat  | Behavior                              |
+| 1       | A1                                    |
+| 2       | A2                                    |
+| 3       | B3                                    |
+| 4       | B4                                    |
+| ncigs   | Cigarettes per day                    |
+| dibpat  | Behavior                              |
+| 1       | type A                                |
+| 2       | type B                                |
+| chd69   | Coronary heart disease                |
+| 1       | Yes                                   |
+| 0       | no                                    |
+| typechd | Type of CHD                           |
+| 1       | myocardial infarction or death        |
+| 2       | silent myocardial infarction          |
+| 3       | angina perctoris                      |
+| time169 | Time of CHD event or end of follow-up |
+| arcus   | Arcus senilis                         |
+| 0       | absent                                |
+| 1       | present                               |
+| bmi     | Body Mass Index                       |
+
+### Question 1: Standardize Function
+
+A. Create a function called standardize.me() that takes a numeric vector
+as an argument, and returns the standardized version of the vector.
+
+``` r
+standardize.me<- function(x){
+  m<- mean(x, na.rm = TRUE)
+  sd<- sd(x, na.rm = TRUE)
+  x <- (x - m)/sd
+}
+```
+
+B. Assign all the numeric columns of the original WCGS dataset to a new
+dataset called WCGS.new.
+
+``` r
+WCGS.new <- wcgs[, sapply(wcgs, is.numeric)]
+```
+
+C. Using a loop and your new function, standardize all the variables
+WCGS.new dataset.
+
+``` r
+for ( i in seq_along(WCGS.new)) {
+  WCGS.new[[i]] <- standardize.me(WCGS.new[[i]])
+}
+```
+
+D. What should the mean and standard deviation of all your new
+standardized variables be? Test your prediction by running a loop
+
+``` r
+#clearly mean and standard deviation should be zero and one respectively
+for (i in seq_along(WCGS.new)){ #loop over WCGS.new columns
+  m <- mean(WCGS.new[[i]], na.rm = TRUE) # exctract mean
+  s <- sd(WCGS.new[[i]], na.rm = TRUE) #extract sd
+  expected_m <- 0 #predicted mean
+  expetced_s <-1 #predicted sd
+  varname <- names(WCGS.new[i]) #exctract varname to return message
+  if ((m - expected_m)<1e-10 & (s - expetced_s)<1e-10) { #allow for some small margin of error due to rounded approximations
+  print(paste0(varname, " has expected mean and sd"))     
+  }  else {
+    print(paste0(varname, " has a problem"))
+  }
+}  
+```
+
+    ## [1] "id has expected mean and sd"
+    ## [1] "age has expected mean and sd"
+    ## [1] "height has expected mean and sd"
+    ## [1] "weight has expected mean and sd"
+    ## [1] "sbp has expected mean and sd"
+    ## [1] "dbp has expected mean and sd"
+    ## [1] "chol has expected mean and sd"
+    ## [1] "ncigs has expected mean and sd"
+    ## [1] "time169 has expected mean and sd"
+    ## [1] "bmi has expected mean and sd"
+    ## [1] "agecat has expected mean and sd"
+
+### Question 2: Looping to Calculate
+
+A. Using a loop, calculate the mean weight of the subjects separated by
+the type of CHD they
+have.
+
+``` r
+chd.type<-as.vector(unique(wcgs["typchd69"])) #create vector of CHD types
+sub_mean<- data.frame(matrix(ncol = 1, nrow = dim(chd.type)[1])) #create empty data.frame to store averages
+for (i in 1:dim(chd.type)[1]) {
+  type<- chd.type[i,1] #exctract type of interest
+  sub_sample <- wcgs[wcgs$typchd69==type, "weight"] #subset the original data.frame according to the CHd type
+  sub_mean[i,1] <- mean(sub_sample, na.rm = TRUE) #compute average weight for a given CHD type
+}
+print(sub_mean)
+```
+
+    ##   matrix.ncol...1..nrow...dim.chd.type..1..
+    ## 1                                  169.5537
+    ## 2                                  172.6444
+    ## 3                                  176.3521
+    ## 4                                  176.6471
+
+B. Now do the same thing, but now donât use a loop
+
+``` r
+tapply(wcgs$weight, wcgs$typchd69, mean)
+```
+
+    ##    no CHD  MI or SD silent MI    angina 
+    ##  169.5537  172.6444  176.3521  176.6471
