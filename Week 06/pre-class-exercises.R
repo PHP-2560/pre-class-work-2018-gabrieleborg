@@ -122,3 +122,15 @@ fizzbuzz <- function(x) {
 }
 
 fizzbuzz(60)
+
+
+# functionals 
+bc <- function(lambda) {
+  if (lambda == 0) {
+    function(x) log(x)
+  } else {
+    function(x) (x ^ lambda - 1) / lambda
+  }
+}
+function1 <-bc(0)
+function1(10)
