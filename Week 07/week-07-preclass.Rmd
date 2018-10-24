@@ -77,26 +77,58 @@ mean.bust
   
   d. the mean and variance of your bankroll after 100 hands (including busts).
 ```{r}
-library(dplyr)
-stat.100<-tbl_df(nrow = iter, ncol = 2)
-for (i in 1:1) {
-  hand <- rbinom(n = iter, size = 1, prob = 0.5)
-  game<-cbind(hand,matrix(NA, ncol = 2, nrow = iter))
+suppressMessages(library(dplyr))
+stat.100<-tbl_df(matrix(data = NA, nrow = iterations, ncol = 1))
+for (i in 1:iterations) {
+  hand <- rbinom(n = iterations, size = 1, prob = 0.5)
+  game<-cbind(hand,matrix(NA, ncol = 2, nrow = iterations))
   game<-tbl_df(game)
   colnames(game)<-c("hand", "win","bankroll")
    
   game[game[,"hand"]==0,"win"]<- (-100)
   game[game[,"hand"]==1, "win"]<- 100
   game[1,"bankroll"]<-1000 + game$win[1]
-  for (t in 2:iter) {
+  for (t in 2:iterations) {
     game$bankroll[t]<- game$bankroll[t-1] + game$win[t]
+    if (game$bankroll[t]==0) {
+      break()
+    }
   }
-  stat.100[i]<-
+  game$bankroll[is.na(game$bankroll)]<-0
+  stat.100[i,1]<-game$bankroll[100]
 }
+
+mean(stat.100$V1)
+var(stat.100$V1)
 
 ```
   
   e. the mean and variance of your bankroll after 500 hands (including busts).
+```{r}
+stat.500<-tbl_df(matrix(data = NA, nrow = iterations, ncol = 1))
+for (i in 1:iterations) {
+  hand <- rbinom(n = iterations, size = 1, prob = 0.5)
+  game<-cbind(hand,matrix(NA, ncol = 2, nrow = iterations))
+  game<-tbl_df(game)
+  colnames(game)<-c("hand", "win","bankroll")
+   
+  game[game[,"hand"]==0,"win"]<- (-100)
+  game[game[,"hand"]==1, "win"]<- 100
+  game[1,"bankroll"]<-1000 + game$win[1]
+  for (t in 2:iterations) {
+    game$bankroll[t]<- game$bankroll[t-1] + game$win[t]
+    if (game$bankroll[t]==0) {
+      break()
+    }
+  }
+  game$bankroll[is.na(game$bankroll)]<-0
+  stat.500[i,1]<-game$bankroll[500]
+}
+
+mean(stat.500$V1)
+var(stat.500$V1)
+```
+  
  
 Note: you *must* stop playing if your player has gone bust. How will you handle this in the `for` loop?
 

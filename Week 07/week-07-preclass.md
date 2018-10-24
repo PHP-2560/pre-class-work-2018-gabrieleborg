@@ -61,7 +61,7 @@ bust.100<-length(simul[simul<=100])/iterations
 bust.100
 ```
 
-    ## [1] 0.322
+    ## [1] 0.3254
 
 2.  the probability that you have busted by the time you have placed
     your five hundredth bet by simulating the outcome directly.
@@ -73,7 +73,7 @@ bust.500<-length(simul[simul<=500])/iterations
 bust.500
 ```
 
-    ## [1] 0.658
+    ## [1] 0.656
 
 3.  the mean time you go bust, given that you go bust within the first
     5000 hands.
@@ -85,13 +85,87 @@ mean.bust<-mean(simul[simul<=5000])
 mean.bust
 ```
 
-    ## [1] 536
+    ## [1] 526.2652
 
 4.  the mean and variance of your bankroll after 100 hands (including
     busts).
 
+<!-- end list -->
+
+``` r
+suppressMessages(library(dplyr))
+```
+
+    ## Warning: package 'dplyr' was built under R version 3.5.1
+
+``` r
+stat.100<-tbl_df(matrix(data = NA, nrow = iterations, ncol = 1))
+for (i in 1:iterations) {
+  hand <- rbinom(n = iterations, size = 1, prob = 0.5)
+  game<-cbind(hand,matrix(NA, ncol = 2, nrow = iterations))
+  game<-tbl_df(game)
+  colnames(game)<-c("hand", "win","bankroll")
+   
+  game[game[,"hand"]==0,"win"]<- (-100)
+  game[game[,"hand"]==1, "win"]<- 100
+  game[1,"bankroll"]<-1000 + game$win[1]
+  for (t in 2:iterations) {
+    game$bankroll[t]<- game$bankroll[t-1] + game$win[t]
+    if (game$bankroll[t]==0) {
+      break()
+    }
+  }
+  game$bankroll[is.na(game$bankroll)]<-0
+  stat.100[i,1]<-game$bankroll[100]
+}
+
+mean(stat.100$V1)
+```
+
+    ## [1] 1008.52
+
+``` r
+var(stat.100$V1)
+```
+
+    ## [1] 858779.2
+
 5.  the mean and variance of your bankroll after 500 hands (including
     busts).
+
+<!-- end list -->
+
+``` r
+stat.500<-tbl_df(matrix(data = NA, nrow = iterations, ncol = 1))
+for (i in 1:iterations) {
+  hand <- rbinom(n = iterations, size = 1, prob = 0.5)
+  game<-cbind(hand,matrix(NA, ncol = 2, nrow = iterations))
+  game<-tbl_df(game)
+  colnames(game)<-c("hand", "win","bankroll")
+   
+  game[game[,"hand"]==0,"win"]<- (-100)
+  game[game[,"hand"]==1, "win"]<- 100
+  game[1,"bankroll"]<-1000 + game$win[1]
+  for (t in 2:iterations) {
+    game$bankroll[t]<- game$bankroll[t-1] + game$win[t]
+    if (game$bankroll[t]==0) {
+      break()
+    }
+  }
+  game$bankroll[is.na(game$bankroll)]<-0
+  stat.500[i,1]<-game$bankroll[500]
+}
+
+mean(stat.500$V1)
+```
+
+    ## [1] 1015.52
+
+``` r
+var(stat.500$V1)
+```
+
+    ## [1] 2756102
 
 Note: you *must* stop playing if your player has gone bust. How will you
 handle this in the `for` loop?
