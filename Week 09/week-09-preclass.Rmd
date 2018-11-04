@@ -1,5 +1,6 @@
 ---
 title: "Basic Webscraping"
+output: github_document
 ---
 
 <style type="text/css">
@@ -21,13 +22,67 @@ options(scipen = 3, digits = 3)
 ## Exercises
 
 1. Read the HTML content of the following URL with a variable called webpage: https://money.cnn.com/data/us_markets/ At this point, it will also be useful to open this web page in your browser.
+```{r}
+library(httr)
+library(rvest)
+url<- "https://money.cnn.com/data/us_markets/"
+webpage_data <- GET(url)
+webpage<- content(webpage_data)
+```
+
 2. Get the session details (status, type, size) of the above mentioned URL.
+```{r}
+webpage_data
+```
+
 3. Extract all of the sector names from the “Stock Sectors” table (bottom left of the web page.)
+```{r}
+library(XML)
+library(RCurl)
+webpage<- getURL(url)
+sector_names <-readHTMLTable(webpage, which = 2, stringsAsFactors = FALSE )[,1]
+sector_names
+```
+
 4. Extract all of the “3 Month % Change” values from the “Stock Sectors” table.
+```{r}
+three.months.ch<-readHTMLTable(webpage, which = 2, stringsAsFactors = FALSE )[,2]
+three.months.ch
+```
+
 5. Extract the table “What’s Moving” (top middle of the web page) into a data-frame.
+```{r}
+whatsmoving<-readHTMLTable(webpage, which = 1, stringsAsFactors = FALSE)
+whatsmoving
+```
+
 6. Re-construct all of the links from the first column of the “What’s Moving” table.
 Hint: the base URL is “https://money.cnn.com”
+```{r}
+linkurl<-"https://money.cnn.com"
+links<-html_nodes(webxml, css = ".wsod_dataTableBig") %>%
+  html_nodes(css = ".wsod_symbol") %>%
+  html_attr("href") 
+
+links<-paste0(linkurl,links)
+links
+
+
+
+```
+
 7. Extract the titles under the “Latest News” section (bottom middle of the web page.)
+```{r}
+latestnews<-html_nodes(webxml, css = ".clearfix") %>%
+  html_nodes(css = ".wsod_fRight") %>%
+  html_nodes(css = "#section_latestnews") %>%
+  html_nodes("li") %>%
+  html_text()
+
+latestnews
+  
+```
+
 8. To understand the structure of the data in a web page, it is often useful to know what the underlying attributes are of the text you see.
 Extract the attributes (and their values) of the HTML element that holds the timestamp underneath the “What’s Moving” table.
 9. Extract the values of the blue percentage-bars from the “Trending Tickers” table (bottom right of the web page.)
