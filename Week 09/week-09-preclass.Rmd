@@ -59,6 +59,7 @@ whatsmoving
 6. Re-construct all of the links from the first column of the “What’s Moving” table.
 Hint: the base URL is “https://money.cnn.com”
 ```{r}
+webxml<-read_html(url)
 linkurl<-"https://money.cnn.com"
 links<-html_nodes(webxml, css = ".wsod_dataTableBig") %>%
   html_nodes(css = ".wsod_symbol") %>%
@@ -85,6 +86,33 @@ latestnews
 
 8. To understand the structure of the data in a web page, it is often useful to know what the underlying attributes are of the text you see.
 Extract the attributes (and their values) of the HTML element that holds the timestamp underneath the “What’s Moving” table.
+```{r}
+timestamp<- html_nodes(webxml, css = ".clearfix") %>%
+  html_nodes(css = ".wsod_fRight") %>%
+  html_nodes(css = ".wsod_disclaimer")
+
+timestamp_attr<- html_attrs(timestamp)
+timestamp_value<- html_text(timestamp)
+timestamp_attr
+timestamp_value
+```
+
 9. Extract the values of the blue percentage-bars from the “Trending Tickers” table (bottom right of the web page.)
+```{r}
+#tickerstable<-readHTMLTable(webpage, which = 3, stringsAsFactors= FALSE) %>%
+ tickerstable<- html_nodes(webxml, css = ".cnnBody_Right") %>%
+  html_nodes(css = ".mod-mostpop") %>%
+  html_nodes("tr") %>%
+  html_nodes(css = ".scale") %>%
+  html_nodes(css = ".bars") %>%
+  html_attrs() %>%
+  unlist()
+
+tickerstable<-as.numeric(gsub("bars pct", "", tickerstable))
+  
+
+tickerstable
+```
+
 Hint: in this case, the values are stored under the “class” attribute.
 10. Get the links of all of the “svg” images on the web page.
