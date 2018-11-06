@@ -25,6 +25,7 @@ options(scipen = 3, digits = 3)
 ```{r}
 library(httr)
 library(rvest)
+library(xml2)
 url<- "https://money.cnn.com/data/us_markets/"
 webpage_data <- GET(url)
 webpage<- content(webpage_data)
@@ -98,6 +99,7 @@ timestamp_value
 ```
 
 9. Extract the values of the blue percentage-bars from the “Trending Tickers” table (bottom right of the web page.)
+Hint: in this case, the values are stored under the “class” attribute.
 ```{r}
 #tickerstable<-readHTMLTable(webpage, which = 3, stringsAsFactors= FALSE) %>%
  tickerstable<- html_nodes(webxml, css = ".cnnBody_Right") %>%
@@ -114,5 +116,12 @@ tickerstable<-as.numeric(gsub("bars pct", "", tickerstable))
 tickerstable
 ```
 
-Hint: in this case, the values are stored under the “class” attribute.
+
 10. Get the links of all of the “svg” images on the web page.
+```{r}
+imagelinks<-html_nodes(webxml, css = "#cnnBody") %>%
+  xml_find_all("//svg") #can't find any svg images...
+
+imagelinks
+```
+
